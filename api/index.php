@@ -18,8 +18,28 @@
 * @ignore
 */
 define('IN_PHPBB', true);
+$vercel_tmp_cache_base = '/tmp/phpbb_cache'; 
+
+if (!is_dir($vercel_tmp_cache_base)) {
+    if (!mkdir($vercel_tmp_cache_base, 0777, true)) {
+       
+        error_log("Failed to create Vercel cache directory: " . $vercel_tmp_cache_base);
+        die("Critical Error: Could not create cache directory. Ensure /tmp is writable and path is valid.");
+    }
+}
+
+if (!is_writable($vercel_tmp_cache_base)) {
+    error_log("Vercel cache directory is not writable: " . $vercel_tmp_cache_base);
+    die("Critical Error: Cache directory is not writable. Check /tmp permissions or path.");
+}
+
+if (!defined('PHPBB_CACHE_PATH')) {
+    define('PHPBB_CACHE_PATH', $vercel_tmp_cache_base . '/');
+}
+
 $phpbb_root_path = (defined('PHPBB_ROOT_PATH')) ? PHPBB_ROOT_PATH : dirname(__DIR__) . '/';
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
+
 include($phpbb_root_path . 'common.' . $phpEx);
 include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
 
